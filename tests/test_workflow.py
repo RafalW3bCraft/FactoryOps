@@ -133,9 +133,15 @@ def test_approved_report_is_candidate_bound_durable_and_idempotent(tmp_path: Pat
     with pytest.raises(WorkflowError):
         reopened.report()
     reopened.connection_ready("observer-1", 3)
+    # Reconnect preserves execution evidence but requires a fresh human decision.
+    with pytest.raises(WorkflowError):
+        reopened.report()
+    replacement = reopened.request_approval()
+    reopened.bind_request(str(replacement["request_id"]), "new-request-message", 3)
+    reopened.observe_message("observer-1", event(replacement, sequence=4))
     report = reopened.report()
     assert report["candidate_sha"] == SHA
-    assert report["approval_message_id"] == "reply-3"
+    assert report["approval_message_id"] == "reply-4"
     assert len(report["receipts"]) == 2
     reopened.set_candidate("d" * 40, "e" * 64)
     with pytest.raises(WorkflowError):

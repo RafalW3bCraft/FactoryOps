@@ -194,3 +194,65 @@ def test_readiness_retry_budget_survives_reconnect_and_process_restart(tmp_path:
         restarted.begin_readiness()
     restarted.set_candidate("c" * 40, "d" * 64)
     assert restarted.begin_readiness()["revision"] == 2
+
+
+def test_reconnect_atomically_revokes_restored_approval_before_challenge(tmp_path: Path) -> None:
+    """Synthetic approval/receipts exercise the real SQLite and signed-artifact path."""
+    import shutil
+
+    store = ledger(tmp_path)
+    sha, manifest = "a" * 40, "b" * 64
+    store.set_candidate(sha, manifest)
+    for role in ("inspector", "stresser"):
+        store.record_receipt(
+            store._seal_receipt(
+                {
+                    "candidate_sha": sha,
+                    "manifest": manifest,
+                    "role": role,
+                    "exit_code": 0,
+                    "backend": "container",
+                    "isolated": True,
+                    "command": ["test"],
+                    "cleanup_confirmed": True,
+                    "image": "sha256:" + "c" * 64,
+                    "output_sha256": "d" * 64,
+                    "duration_seconds": 0.01,
+                }
+            )
+        )
+    with patch("factory.workflow.time.time", return_value=1000):
+        store.connection_ready("server", 0)
+        nonce = store.begin_readiness()["nonce"]
+        for seq, role in enumerate(ROLES, 1):
+            store.observe_message("server", event(seq, role, nonce))
+        for seq, role in enumerate(("inspector", "stresser"), 5):
+            signature = store.status()["receipts"][role]["signature"]
+            store.observe_message("server", event(seq, role, nonce, body=f"VERIFIED {role} {sha} {signature}"))
+        request = store.request_approval()
+        store.bind_request(str(request["request_id"]), "request", 6)
+        approval_event = event(7, "foreman", nonce, sender="human", body=str(request["confirmation"]))
+        store.observe_message("server", approval_event)
+        artifact = store.write_report()
+        # Model an older backup captured before a subsequent denial.
+        shutil.copytree(store.directory, tmp_path / "backup" / "state")
+        store.observe_message("server", event(8, "foreman", nonce, sender="human", body="DENY"))
+        with pytest.raises(WorkflowError):
+            store.read_report()
+    restored = ledger(tmp_path / "backup")
+    reader = ledger(tmp_path / "backup")
+    with patch("factory.workflow.time.time", return_value=1007):
+        with pytest.raises(WorkflowError):
+            reader.read_report()
+        # The new handshake must not expose the old approval even BEFORE a new challenge.
+        restored.connection_ready("server", 7)
+        with pytest.raises(WorkflowError):
+            reader.read_report()
+        status = reader.status()
+        assert status["approval"] is None
+        assert status["request"] is None
+        assert status["readiness"] is None
+        assert status["receipts"] == artifact["report"]["receipts"]
+        assert any((item.get("approval") or {}).get("message_id") == "m7" for item in status["history"])
+        assert restored.observe_message("server", event(8, "foreman", nonce, sender="human", body="DENY")) == "ignored"
+        assert not reader.status()["required_seats_live"]

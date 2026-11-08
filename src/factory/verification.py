@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 import re
 import selectors
@@ -73,8 +74,8 @@ def run_bounded(
     on_limit: Callable[[], None] | None = None,
 ) -> dict[str, Any]:
     """Bound trusted process orchestration. Untrusted code requires the container backend."""
-    if not command or timeout <= 0 or output_limit <= 0:
-        raise VerificationError("Execution requires an argv, positive timeout and output limit.")
+    if not command or not math.isfinite(timeout) or timeout <= 0 or output_limit <= 0:
+        raise VerificationError("Execution requires an argv, finite positive timeout and positive output limit.")
     started = time.monotonic()
     process = subprocess.Popen(
         command,

@@ -36,7 +36,7 @@ params:
   tooling_directory:
     type: string
     pattern: "/.*"
-    description: Trusted FactoryOps source checkout containing the factoryops CLI project.
+    description: Frozen installed FactoryOps runtime containing .venv/bin/python.
   builder_directory:
     type: directory
     description: Pre-created Builder worktree from the managed demo root.
@@ -70,7 +70,7 @@ agents:
       Accept an explicitly addressed human issue, restate it, assign one
       traceable DEFECT id, and address Smith with a self-contained handoff.
       Require Smith's committed full SHA, then prepare Inspector and Stresser
-      independently using `uv run --project "{tooling_directory}" factoryops prepare-verifier --root
+      independently using `"{tooling_directory}/.venv/bin/python" -m factory.factoryops prepare-verifier --root
       "{demo_root}" --role <role> --commit <sha>` from this directory. Do not
       report acceptance unless both seats independently pass the same SHA.
 
@@ -151,6 +151,9 @@ agents:
       approve, or publish the work.
 
 room:
+  channel_type: channel_private
+  read_visibility: private
+  write_visibility: private
   name: "{team}-engineering"
   description: Human-governed FactoryOps engineering room with independent verification.
   bridge: "{bridge}"

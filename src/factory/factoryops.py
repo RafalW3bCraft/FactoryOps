@@ -722,3 +722,7 @@ def main(argv: list[str] | None = None) -> int:
 def run_cli() -> None:
     """Console-script entry point."""
     raise SystemExit(main())
+
+
+if __name__ == "__main__":
+    run_cli()

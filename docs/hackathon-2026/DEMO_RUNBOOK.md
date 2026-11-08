@@ -84,12 +84,18 @@ diagnostics cannot establish native seat or Discord readiness.
 
 ## 3. Connect Discord
 
-### Current failure and recovery
+### Current connection and recovery
 
-The native server log contains `discord.errors.PrivilegedIntentsRequired`, followed
-by `Discord gateway connection failed`. This explains **Bridge is not running**
-when account linking searches the member directory. It is a Discord bot intent
-configuration failure; local `/health` can still return HTTP200.
+Discord is now connected, the real operator is linked as `@rafal_init`, and the
+private four-agent room already exists. Do not create another connection or team
+on this prepared computer. Console → **Home → Messaging apps** shows the existing
+`switch-buddy` connection and linked username. **Connectors** is a different page.
+
+Earlier native logs recorded `discord.errors.PrivilegedIntentsRequired` and
+`Discord gateway connection failed`. The intent repair and successful reconnect
+are verified; this is historical failure evidence, not the current status. If
+**Bridge is not running** recurs with that error, use the recovery steps below.
+A public `/health` response can remain HTTP 200 during a bridge failure.
 
 Open Discord Developer Portal → the connected bot application → Bot → Privileged
 Gateway Intents. Enable Server Members Intent and Message Content Intent, then
@@ -110,7 +116,7 @@ Follow the [official Discord procedure](https://docs.switchagents.ai/switch-room
    permission list: View Channels, Send Messages, Send Messages in Threads,
    Manage Webhooks, Manage Channels, Manage Roles, Read Message History,
    Attach Files and Add Reactions.
-4. Console → Messaging Apps → Connect → Discord: enter the bot token and server
+4. Console → Home → Messaging apps → Connect → Discord: enter the bot token and server
    ID directly in that form. Never put the token in chat, Git, command history
    or captured output.
 5. Link the real human identity using **This is me**. Restrict the bot and test
@@ -125,19 +131,33 @@ credentials. Record the actual UI/provider outcome.
 
 ## 4. Prepare the supervised four-agent demo
 
-After automated checks and independent review, copy the tested candidate into
-`~/factoryops-demo-runtime-next` without credentials, state, logs or caches. Keep it
-unchanged during recording. Its base SHA plus a SHA-256 content manifest identify
-uncommitted Factory changes. Development continues in `~/factoryops-main`.
-Do not describe an unreviewed copy as a cleared runtime.
+The current team, runtime and fixture already exist: skip installation,
+initialization and template creation on this prepared computer. After checks and
+review, freeze the built wheel in its own installed environment. Keep that
+runtime unchanged during recording; development continues in `~/factoryops-main`.
+Do not create another source clone. Record the source SHA/content fingerprint,
+wheel digest and installed resource parity.
 
-From that frozen runtime create a **new** disposable fixture outside every
-Factory checkout; the path below must not already contain data:
+On a new machine, the destination below must not already exist. This subshell
+stops on errors and refuses an existing runtime directory:
 
 ```bash
-cd "$HOME/factoryops-demo-runtime-next"
-uv sync --frozen --all-groups --python 3.12
-uv run --frozen factoryops init-demo --root "$HOME/factoryops-inventory-live-20261107" --completion-mode supervised
+(
+  set -eu
+  cd "$HOME/factoryops-main"
+  export PATH="$HOME/.local/bin:$PATH"
+  FACTORYOPS_RUNTIME="$HOME/.local/share/factoryops/demo-runtime"
+  mkdir -p "$HOME/.local/share/factoryops"
+  mkdir -m 700 "$FACTORYOPS_RUNTIME"
+  uv build
+  cp dist/factory-0.3.0-py3-none-any.whl "$FACTORYOPS_RUNTIME/"
+  uv export --frozen --no-dev --no-emit-project --output-file "$FACTORYOPS_RUNTIME/requirements.lock"
+  uv venv --python 3.12 "$FACTORYOPS_RUNTIME/.venv"
+  UV_HTTP_TIMEOUT=30 UV_HTTP_RETRIES=2 uv pip install --python "$FACTORYOPS_RUNTIME/.venv/bin/python" --require-hashes -r "$FACTORYOPS_RUNTIME/requirements.lock"
+  uv pip install --python "$FACTORYOPS_RUNTIME/.venv/bin/python" --offline --no-deps "$FACTORYOPS_RUNTIME/factory-0.3.0-py3-none-any.whl"
+  "$FACTORYOPS_RUNTIME/.venv/bin/python" -m factory.factoryops --help
+  "$FACTORYOPS_RUNTIME/.venv/bin/python" -m factory.factoryops init-demo --root "$HOME/.local/share/factoryops/inventory-demo" --completion-mode supervised
+)
 ```
 
 The existing prepared fixture must not be overwritten. If it already exists,
@@ -148,8 +168,9 @@ in Console, select native Codex and the private Discord bridge. Set:
 
 | Template field | Local value |
 |---|---|
-| `tooling_directory` | `/home/victim/factoryops-demo-runtime-next` |
-| `demo_root` | `/home/victim/factoryops-inventory-live-20261107` |
+| `team` | `factoryops-demo` (choose another prefix for another team) |
+| `tooling_directory` | `/home/victim/.local/share/factoryops/demo-runtime` |
+| `demo_root` | `/home/victim/.local/share/factoryops/inventory-demo` |
 | `completion_mode` | `supervised`, matching fixture metadata and instructions |
 | `foreman_directory` | emitted `foreman` directory |
 | `builder_directory` | emitted `builder` directory |
@@ -167,8 +188,8 @@ or controller state directory as their working directory.
 ## 5. Record the actual manual acceptance
 
 Before the issue, run `!agents-status` in the connected channel. Then address
-each of `@factoryops-foreman`, `@factoryops-smith`, `@factoryops-inspector`, and
-`@factoryops-stresser` with a different unpredictable harmless challenge, for
+each of `@factoryops-demo-foreman`, `@factoryops-demo-smith`, `@factoryops-demo-inspector`, and
+`@factoryops-demo-stresser` with a different unpredictable harmless challenge, for
 example `Reply exactly READY-<fresh random value>; do not change any files.`
 Require the correct native seat to answer in the correct room within 120 seconds.
 A connected bot, public health result, or another seat replying is insufficient.
@@ -180,7 +201,7 @@ inventory fixtures. Do not run endless autonomous missions.
 
 | Step | Action | Required observation |
 |---|---|---|
-| 1 | Send `@factoryops-foreman Restock accepts -1 and lowers inventory. Please investigate and fix it.` | Defect ID and self-contained Smith handoff. |
+| 1 | Send `@factoryops-demo-foreman Restock accepts -1 and lowers inventory. Please investigate and fix it.` | Defect ID and self-contained Smith handoff. |
 | 2 | Watch Smith add and run a regression test. | Real RED failure for non-positive restock. |
 | 3 | Watch Smith implement the fix and run the full fixture suite. | GREEN and full local fixture commit SHA. |
 | 4 | Prepare each verifier using commands below. | Both detached at the exact SHA and clean. |
@@ -283,6 +304,22 @@ prose is never that artifact. Failed reruns, changed candidates, stream loss and
 rejections revoke authorization. Logs/receipts/cursors stay in the private state
 directory. A blocked gap/takeover requires operator reconciliation; preserve
 old evidence and create a fresh workflow rather than silently skipping history.
+Every observer reconnect atomically revokes the prior approval request, decision
+and seat readiness before restoring connection health. Execution receipts and
+verdicts remain available, but fresh seat challenges and a new candidate-specific
+human decision are required. A signed older artifact remains historical evidence;
+it cannot authorize the reconnected workflow.
+
+For controller backups, first stop the actual gate with Ctrl-C and confirm its
+status is blocked/stopped. Back up the quiescent private state as a unit, including
+its database, signing key, connection cursor metadata and evidence, using storage
+accessible only to the controller principal. Never put this material in Git or
+an agent workspace. Restore only while the gate is stopped and never overwrite
+active state. On restart require the supported handshake, fresh seat replies and
+a new human decision; retain the old evidence. Local regression tests exercised
+real SQLite/file backup restoration with synthetic platform events, including an
+older backup captured before a subsequent denial. Actual deployed-host backup,
+replay recovery and restore remain unverified.
 
 A functioning supported engine is required for actual contained execution, not
 for the native Discord setup. Rootless Podman through the existing Docker
@@ -303,7 +340,7 @@ uv run --frozen ruff check .
 uv run --frozen ruff format --check .
 uv run --frozen mypy src tests
 uv run --frozen shellcheck *.sh scripts/*.sh
-TMPDIR="$HOME/factoryops-local-tests" uv run --frozen pytest -q --cov=src --cov-fail-under=85
+TMPDIR="$HOME/.local/share/factoryops/tests" uv run --frozen pytest -q --cov=src --cov-fail-under=85
 uv run --frozen pip-audit
 uv build
 uv run --frozen python scripts/sync_assets.py --check
@@ -311,7 +348,7 @@ uv run --frozen python scripts/check_supply_chain.py
 git diff --check
 ```
 
-Create `$HOME/factoryops-local-tests` first if absent. Also run pinned Bandit source scanning, installed-wheel resource smoke and
+Create `$HOME/.local/share/factoryops/tests` first if absent. Also run pinned Bandit source scanning, installed-wheel resource smoke and
 lock/export/SBOM parity. Report scan severity and actual exit codes, including
 failures. Container configuration tests and mocked engine results are not
 executed containment proof. Historical CI does not verify this uncommitted copy.
@@ -339,18 +376,23 @@ with fabricated messages, approvals or test results.
 
 ## Current connection status and next step
 
-On November 7 the local server at `http://localhost:40735` answered `/health`
-with HTTP 200. After the bot intent repair, its current startup log confirms a
-successful Discord Gateway connection with no privileged-intent rejection.
-FactoryOps version 2 is saved under **Templates**. The creation form is waiting
-for the operator's **Link account → This is me** selection. Use a Discord username
-or server display name, not an email. Creating four agents/one room and obtaining
-their genuine replies remain pending. The tooling path is an independent text
-field; the four Directory fields are agent workspaces only.
+The server at `http://localhost:40735` answers `/health` with HTTP 200.
+Discord is connected and `@rafal_init` is linked. FactoryOps template version 4
+created four native Codex agents and private `factoryops-demo-engineering`.
+Discord's actual permission data denies @everyone access and explicitly allows
+the operator and bot. Console lists all four agents as Running.
 
-An earlier provider quota error is historical. Existing built-in-agent replies
-are visible, but a new challenge and the four-seat acceptance run are separate
-checks. Restore capacity in the same account if that error recurs. Launch Console with:
+Foreman's actual initial command `pwd && cat AGENTS.md` awaits permission request
+`A1`. Review and allow once using the displayed choices; this is not candidate
+approval. Fresh addressed replies and the complete inventory workflow remain
+pending. Historical buddy direct-chat failures are not a passed room test.
+
+Frozen tools run from `~/.local/share/factoryops/demo-runtime/.venv/bin/python
+-m factory.factoryops`, independent of the mutable source checkout. The active
+fixture is `~/.local/share/factoryops/inventory-demo`, baseline
+`c77912a946d9d30d846ee497af165616b434a3c7`. Do not recreate existing resources.
+The published event deadline has passed; late eligibility requires organizer
+confirmation. Launch Console with:
 
 ```bash
 env -u ELECTRON_RUN_AS_NODE PATH="$HOME/.local/bin:$PATH" switch-console --password-store=gnome-libsecret
@@ -397,3 +439,47 @@ or added to repository files. The owned local core service was restarted using
 its existing configuration. The subsequent current-startup log confirms a successful bot Gateway connection.
 The real user link and four-seat workflow remain pending; they are not implied
 by the HTTP flag update.
+
+## Directory cleanup and installed runtime
+
+The operator requested removal of duplicate clones and old test work. The three
+old source clones and eight inventory fixtures were removed after their source
+differences/history were archived and verified in
+`~/factoryops-evidence/cleanup-archives`. Old scratch was replaced by
+`~/.local/share/factoryops/tests`. Only `factoryops-main` and the audit data
+folder `factoryops-evidence` remain at the home directory's top level.
+Historical evidence keeps its original execution paths; `cleanup-result.json`
+records the current mapping. Do not restore archives over existing state.
+
+For a new runtime, choose a new empty destination outside any active recording.
+Build with `uv build`, export frozen production requirements using `uv export
+--frozen --no-dev --no-emit-project`, create its Python 3.12 environment with
+`uv venv`, install the exported requirements with `uv pip install --require-hashes
+-r ...`, then install the built wheel with `--no-deps`. Record its wheel digest.
+Require real `RUNTIME/.venv/bin/python -m factory.factoryops --help` output and
+actual successful fixture initialization; exit 0 alone is insufficient.
+The recorded install retained pins and TLS verification. Offline attempts lacked
+cached wheels; bounded online pinned installation then exited 0.
+
+### Verified native agent lifecycle controls
+
+Agent settings → top-right menu exposes **Turn off agent**; after stopping,
+it exposes **Turn on agent**. The built-in buddy was actually stopped/restarted
+using those controls. Console itself was restarted after form setup, without
+leaving a debugging endpoint; server public health remained HTTP 200. Native
+required-seat responses after restart remain to be tested. If the initial tool
+request expired, address Foreman and review the fresh displayed request; do not
+assume old approval IDs still authorize anything. No reboot persistence is claimed.
+
+## Current native tool-permission card
+
+The actual Discord message `1568776730230005784` offers **1. Approve**,
+**2. Cancel**, and **3. Decline** for Foreman's `pwd && cat AGENTS.md` command.
+After reviewing that exact workspace/command, click **1. Approve** or reply
+`A1 1` in the same private channel. This permits the individual read command;
+it is not approval of an inventory candidate. Keep bypass permissions disabled.
+If Switch reports the request closed, review the new request rather than reusing
+an old handle. The request does not automatically expire after 24 hours: native
+provider requests may have no expiry and can instead close during session
+lifecycle changes. No tool permission or candidate approval was authored on the
+operator's behalf.

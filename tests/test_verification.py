@@ -58,6 +58,15 @@ def test_bounded_execution_timeout_output_limit_and_descendant_cleanup(tmp_path:
     assert os.getpgid(os.getpid()) != timed["process_group"]
 
 
+@pytest.mark.parametrize("timeout", [float("nan"), float("inf"), -float("inf"), 0.0, -1.0])
+def test_bounded_execution_rejects_invalid_timeout_before_spawning(tmp_path: Path, timeout: float) -> None:
+    marker = tmp_path / "must-not-execute"
+    command = [sys.executable, "-c", "import pathlib,sys; pathlib.Path(sys.argv[1]).touch()", str(marker)]
+    with pytest.raises(VerificationError):
+        run_bounded(command, timeout=timeout)
+    assert not marker.exists(), "invalid timeout allowed the command to execute"
+
+
 def test_container_command_has_no_host_credentials_and_enforced_limits(tmp_path: Path) -> None:
     command = container_command(
         "/bin/docker", "sha256:" + "a" * 64, tmp_path, "fixture-check", ["python", "-m", "unittest"]

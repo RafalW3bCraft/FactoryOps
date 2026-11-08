@@ -371,14 +371,30 @@ class Ledger:
                 raise WorkflowError("Observer identity or resume cursor changed; reconciliation required.")
             if state["connection"] in ("taken_over", "gap", "conflicting_event"):
                 raise WorkflowError("Blocked stream requires operator reconciliation in a new workflow.")
-            state.update(namespace=namespace, connection="healthy", heartbeat_at=time.time())
+            # Reconnection must revoke old authority in the same commit that restores
+            # health. Other processes can read the signed report before the gate has
+            # time to post its new challenge or replay previously unseen events.
+            if state["request"] or state["approval"] or state.get("readiness"):
+                state["history"].append(
+                    {
+                        "reason": "observer_reconnected",
+                        "candidate_sha": state["candidate_sha"],
+                        "request": state["request"],
+                        "approval": state["approval"],
+                        "readiness": state.get("readiness"),
+                    }
+                )
+            state.update(
+                namespace=namespace,
+                connection="healthy",
+                heartbeat_at=time.time(),
+                request=None,
+                approval=None,
+                readiness=None,
+            )
             self._save(connection, state)
         self._connected = True
         self._last_heartbeat = time.monotonic()
-        with self._transaction() as connection:
-            state = self._read(connection)
-            state["heartbeat_at"] = time.time()
-            self._save(connection, state)
 
     def heartbeat(self) -> None:
         if not self._connected:

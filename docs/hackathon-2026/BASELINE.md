@@ -2,49 +2,53 @@
 
 ## Verdict and candidate identity
 
-**Hackathon: approximately 60% ready; submission blocked by the genuine four-agent
+**Hackathon: approximately 70% ready; submission blocked by the genuine four-agent
 workflow, linked-human decision, reviewed video and final submission.**
 **Production: approximately 55% ready; release blocked by unverified native
 permissions, trusted host deployment and live recovery.** These are judgement
 estimates of completed work, not certifications or measured reliability.
 
 The authorized checkout is `/home/victim/factoryops-main`, branch `main`, HEAD
-`26311912e10c27b1170df33720349f277a685fc8`. The operator externally committed/pushed
-that revision during this session; the assistant issued no Factory commit/push.
+`0a0907fdf72d4950b3351514305da22d5918a134`. The operator externally committed
+that revision between work sessions; the assistant issued no Factory commit/push.
 Current additional changes remain uncommitted/unpushed. Earlier base:
 `197601dcd264044397943c3c7932ceed704a75c2`; event audit base:
 `0bf8841ee584669b2786429f7ea677fdd4210de2`.
 
-Current implementation fingerprint: `f4510181389d1bb214f76812fe904dc7aa201f8c6d9e50bd13912fc00b9a3d93`.
+Current implementation fingerprint: `7bc2993b265b05b5d4df387862457a5ece0531d61055f08928a6d5c5195aff4b`.
 The private manifest lists each measured file under
 `/home/victim/factoryops-evidence/current-implementation-manifest.json`.
 It includes implementation, tests, resources and configuration; operator/history
 Markdown is excluded. A commit SHA alone does not identify these working edits.
-The new runtime candidate is `/home/victim/factoryops-demo-runtime-next`.
-The original frozen runtime and shared checkout deletions remain preserved.
+The frozen installed runtime is `/home/victim/.local/share/factoryops/demo-runtime`.
+It contains the wheel and isolated Python environment, not another source clone.
+At the operator's later request, old clones/fixtures were archived and removed;
+the original shared checkout deletions remain preserved.
 
 ## Verified, inferred and unknown
 
-**Verified local:** 224 tests and 13 subtests passed; coverage 88.61%. All ten
-commands below exited 0. The full sandbox dependency/image build succeeded after
+**Verified local:** 234 tests and 13 subtests passed; coverage 88.66%. All ten commands below exited 0 in the repeated final gate. An earlier
+formatting failure was corrected before this successful repeat. The full sandbox dependency/image build succeeded after
 bounded download retries; actual container containment and two-UID probes ran.
 These are local checks, not live native agent or human decisions.
 
 **Verified setup:** Switch Console 0.40.1/core 0.31.0 running; actual local server
-`http://localhost:40735/health` returned HTTP 200. The Discord intent repair
-returned HTTP 200 and the subsequent native core log confirms Gateway connected,
-with no privileged-intent rejection. Corrected FactoryOps template is saved in
-Console; the form shows four agents and waits for account linking.
+`http://localhost:40735/health` returns HTTP 200. Discord is connected and
+`@rafal_init` is linked. Template version 4 created Foreman, Smith, Inspector and
+Stresser plus private `factoryops-demo-engineering`. All four show Running.
+Discord API data confirms @everyone view access denied and two explicitly allowed
+members (operator/bot). The real kickoff started Foreman's native session and
+requested permission `A1` for `pwd && cat AGENTS.md` in the disposable workspace.
 
-**Inference:** a linked operator, available Codex capacity and successful native
-session startup should permit the supervised inventory demonstration. That
-inference is not a passed acceptance test.
+**Inference:** after the operator approves appropriate native tools, the available
+seats should execute the supervised inventory workflow. A Running label and
+permission request do not prove a completed task or four responding seats.
 
-**Unknown/pending:** correct human Discord identity, private channel readiness,
-four fresh native seat replies, actual handoffs/RED/GREEN/same-SHA checks/approval,
-reviewed video, registration/eligibility details and submission receipt. Built-in
-agent replies visible in Console do not prove the FactoryOps workflow. An earlier
-usage-limit error is historical; a fresh four-seat inference check is required.
+**Unknown/pending:** four fresh addressed replies, actual handoffs/RED/GREEN/
+same-SHA checks, genuine later candidate approval, reviewed video and submission
+receipt. Historical buddy direct-chat posting failures are retained as failures.
+The official deadline was November 7 at 13:29 EST; it has passed. Late acceptance
+requires organizer confirmation; no submission is claimed.
 
 ## Mandatory hackathon requirements
 
@@ -68,7 +72,7 @@ gate, not a substitute for the event's human/AI workflow requirement.
 ## Current automated commands and exits
 
 Executed in `/home/victim/factoryops-main` with Python 3.12.14 and uv 0.12.10.
-Test TMPDIR: `/home/victim/factoryops-local-tests`.
+Test TMPDIR: `/home/victim/.local/share/factoryops/tests`.
 
 | Actual command | Exit | Result |
 |---|---:|---|
@@ -76,7 +80,7 @@ Test TMPDIR: `/home/victim/factoryops-local-tests`.
 | `uv run --frozen ruff format --check .` | 0 | Passed |
 | `uv run --frozen mypy src tests` | 0 | Passed |
 | `uv run --frozen shellcheck *.sh scripts/*.sh` | 0 | Actual expanded argv retained in JSON |
-| `TMPDIR="$HOME/factoryops-local-tests" uv run --frozen pytest -q --cov=src --cov-fail-under=85` | 0 | 224 passed, 13 subtests; 88.61% |
+| `TMPDIR="$HOME/.local/share/factoryops/tests" uv run --frozen pytest -q --cov=src --cov-fail-under=85` | 0 | 234 passed, 13 subtests; 88.66% |
 | `uv run --frozen pip-audit` | 0 | No known dependency vulnerabilities; local Factory package skipped because not on PyPI |
 | `uv build` | 0 | Wheel and source distribution built |
 | `uv run --frozen python scripts/sync_assets.py --check` | 0 | Canonical/package copies agree |
@@ -87,19 +91,24 @@ Exact argv, elapsed time and exit codes: `current-final-checks.json`; command
 output: `current-final-*.log` in private evidence. Mypy also passed with the new
 recorder/principal-probe scripts included (45 files). Bandit 1.9.4 last scan
 exited 1: **16 LOW, 0 MEDIUM/HIGH** alerts; this is not a zero-finding pass.
-The final distribution smoke/image parity and narrow native-fix review records
-are separate checks; use their actual artifacts before claiming their outcome.
+The original installed runtime smoke created a real fixture and matched all 65
+package source/resource files at freeze. The active supervised runtime remains
+unchanged; `verification.py` and `workflow.py` now differ because new background
+hardening is tested in main. A separate disposable installed-wheel environment
+passed CLI, finite-timeout rejection and real fixture initialization (all exits
+0), without changing that live runtime. No mutable source import was used.
+Final container and independent-review results are separate evidence.
 No fresh remote CI result is asserted for these uncommitted edits.
 
 ## Implementation and remaining proof
 
 | Feature | State | Actual evidence / limit |
 |---|---|---|
-| Native Foreman/Smith/Inspector/Stresser, sibling addressing, bypass off | Implemented; live unverified | Saved template; native lint passes; four sessions not created |
+| Native Foreman/Smith/Inspector/Stresser, sibling addressing, bypass off | Provisioned; workflow pending | Four native seats Running; private room; initial Foreman command awaits permission |
 | Supervised/enforced mode consistency | Implemented | Local mode/mismatch tests; supervised report has limited procedural authority |
 | Canonical fixture paths, symlink checks, Git relationships, atomic metadata | Implemented | Real disposable Git regression tests; advisory same-UID protection |
 | Native `.switch` runtime state | Implemented | Regression preserves ignored runtime files through candidate preparation |
-| Independent tooling path in Console | Implemented | RED then GREEN regression; corrected template saved as version 2 |
+| Independent tooling path in Console | Implemented | RED then GREEN regression; corrected template saved as version 4 |
 | Exact-revision, credential-free bounded execution | Implemented locally | Real Podman execution/limits/cleanup; not native provider isolation |
 | Durable candidate/attempt-bound ledger and signed report | Implemented; live unverified | Synthetic authenticated event/replay/restart/expiry tests |
 | Required-seat freshness and strict diagnostics | Implemented; live unverified | Four opaque identities, challenge freshness, durable retry budget and idle-stream tests |
@@ -111,8 +120,10 @@ No fresh remote CI result is asserted for these uncommitted edits.
 Independent development Inspector and Stresser previously returned **LOCAL PASS**
 for a bounded core review, each independently running 40 tests and 4 subtests
 (exit 0). Their Git-fixture sandbox limits are stated in the reports. These
-reviewers are not the native Switch Inspector/Stresser seats. Fresh narrow
-reviews of the last native-workspace/template fixes are recorded separately.
+reviewers are not the native Switch Inspector/Stresser seats. Final independent Inspector/Stresser reviews each passed 45 tests (one
+deselected) and verified 139 relevant file hashes before/after, with no new
+findings in scope. Fixture initialization was inspected rather than rerun
+inside their Git-marked review sandbox; root executed the actual installed test.
 
 ## Ordered remaining work
 
@@ -128,8 +139,9 @@ reviews of the last native-workspace/template fixes are recorded separately.
 
 ## Manual interventions
 
-1. Supply the actual Discord username/display name; select **This is me** for the
-   correct account. The existing bot credentials stay in Switch, not `.env`.
+1. Identity is already linked as `@rafal_init`. Approve the genuine initial native
+   tool request after review; retain disabled bypass. Existing bot credentials
+   stay in Switch, not `.env`.
 2. Restrict the dedicated test channel, create the template once, confirm normal
    tool approvals and available existing-account capacity.
 3. The operator must personally decide the identified candidate after both
@@ -143,9 +155,9 @@ reviews of the last native-workspace/template fixes are recorded separately.
 
 > Work only in `/home/victim/factoryops-main` on main; no commits/pushes or changes
 > to preserved checkouts/runtime. Read AGENTS.md and ECC TDD/security/verification
-> guidance. Start from HEAD26311912e10c27b1170df33720349f277a685fc8 plus the current
+> guidance. Start from HEAD0a0907fdf72d4950b3351514305da22d5918a134 plus the current
 > fingerprinted working changes. First complete the real supervised Switch/Discord
-> four-seat run after operator identity linking; capture actual same-SHA RED/GREEN,
+> four-seat run after the operator reviews native tool permissions; capture actual same-SHA RED/GREEN,
 > independent verdicts and later genuine human decision. Fix only reproduced
 > blockers test-first; never manufacture messages, approvals or a demo video.
 > Then deploy the trusted observer under a separate OS principal, prove native
@@ -167,3 +179,87 @@ and generated copies synchronized. Examples remain explicitly illustrative.
 - `ARCHITECTURE_AUDIT.md` and `SECURITY.md`: code map/trust boundaries.
 - This file: current outcomes/blockers; `LIVE_DEMO_EVIDENCE.md`: actual room evidence.
 - `CHANGELOG.md`, `docs/AUDIT.md`, `TDD_EVIDENCE.md`: provenance/history.
+
+## Cleanup verification and additional regressions
+
+`cleanup-result.json` records 12 removed directories: three source clones, eight
+old inventory fixtures and the old test scratch. Source differences and fixture
+history were archived with SHA-256 manifests and reread verification before
+removal. `factoryops-main` is the only source checkout; `factoryops-evidence` is
+retained data. New scratch/runtime/fixture live under `~/.local/share/factoryops`.
+
+New test-first fixes enforce private Discord/Switch room defaults, use the frozen
+installed module for verifier preparation, and make `python -m factory.factoryops`
+actually execute the CLI. The first module smoke exposed an exit-0 no-op; the
+new help/fixture regressions failed before the entry-point fix. Real installed
+initialization now created baseline `c77912a946d9d30d846ee497af165616b434a3c7`.
+Offline install attempts lacked cached wheels; bounded online installation
+retained frozen hashes and TLS, then the wheel install and actual initialization
+exited 0. The installed runtime imports no mutable source checkout or credentials.
+
+## Final local verification after cleanup
+
+The final repeated gate exited 0 for all ten recorded commands: 234 tests,
+13 subtests and 88.66% coverage. Bandit exited 1 with 16 LOW and no MEDIUM/HIGH
+findings. The original frozen runtime matched all 65 package files at freeze;
+its two background-hardening differences are explicitly recorded above. Native Switch
+0.31 template lint returned no errors/warnings. Both independent bounded reviews
+passed 45 tests each and matched 139 hashes; no live/production clearance.
+
+Actual isolation probes passed on immutable image
+`sha256:b0a97104708786cf5d26eeafbf47a5854eeda85db4e054715280e8e7348b1531`:
+nonroot, read-only, network/host sentinel denied, no credential environment/socket,
+resource limits, timeout/output cap and confirmed cleanup. Final image build
+exited 0 using the tested wheel and existing pinned base dependencies offline.
+These probes do not establish native-provider permissions or host principal
+separation. The temporary localhost-only form automation endpoint was closed;
+Console was relaunched normally with the requested secret-store option.
+
+Evidence: `current-final-checks.json`, `current-final-coverage.log`,
+`continue-bandit.json`, `continue-frozen-runtime-parity.json`,
+`cleanup-final-image-build.json`, `cleanup-final-containment.json`,
+`cleanup-independent-reviews/`, `cleanup-markdown-audit.json` and
+`console-automation-session.json` under the private evidence directory.
+
+## Latest recovery repair and validation
+
+An independent local restore probe reproduced a P1 authorization gap: a restored
+approval could become readable after `connection_ready()` refreshed health and
+before the gate cleared old readiness. A new real-SQLite/signed-artifact test
+failed at that exact independent read (exit 1). The repair atomically clears old
+request, approval and readiness in the transaction that restores health, retaining
+receipts/verdicts and historical evidence. The regression passes; reconnect now
+requires fresh readiness and a new human decision. Source: `workflow.py`; tests:
+`test_required_seats.py`, `test_workflow.py`. These use synthetic platform events,
+not real human decisions.
+
+Separately, NaN/infinite timeouts previously executed commands without a finite
+deadline. The new parameterized regression initially returned 2 failures and
+3 passes (exit 1); finite validation now rejects them before process creation.
+The targeted verifier suite passed 14 tests (exit 0). An intermediate restore
+test had an incorrect assumption about nullable history entries; that test was
+corrected before the successful full gate.
+
+The latest full gate passed 234 tests and 13 subtests with 88.66% coverage; all ten
+commands exited 0. Independent Inspector reran 54 targeted tests and the original
+restore race; Stresser reran 43 tests and extra timeout/replay/restore probes;
+both gave bounded LOCAL PASS, exit 0. These development reviewers are separate
+from native Switch reviewers. Evidence: `reconnect-final-reviews/`,
+`current-final-checks.json`, `continue-wheel-smoke.json`. Bandit 1.9.4 returned
+exit 1, still 16 LOW findings and none MEDIUM/HIGH.
+
+The updated wheel's offline image overlay first failed (exit 1) because the base
+project virtualenv has no pip. Rebuilding with its existing pinned uv succeeded
+(exit 0), without downloads or TLS changes. Current image:
+`sha256:13d9bb3e76625b49e6ff407e0c6a0874dbe945aed5988cc47c289d084f45e7e8`.
+See `continue-image-build.json` and the retained attempt-1 log. This candidate
+has not replaced the frozen live demonstration runtime.
+
+Actual containment on that updated immutable image exited 0: nonroot/read-only,
+no credential environment/socket, network and host sentinel denial, memory/PID
+limits, timeout/output limits (expected 124), and cleanup exits 0. A separate
+in-container package-hash probe matched all 65 current source/resource files,
+exit 0. Evidence: `continue-containment-command.json`,
+`continue-containment.json`, `continue-image-package-parity.json`. This is
+container execution, not native provider clearance. The 105-file Markdown link
+recheck found no broken active local links (`continue-markdown-audit.json`).

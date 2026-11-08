@@ -13,6 +13,29 @@ Use that guide for installation, Discord connection, team import, the real issue
 approval, troubleshooting, and stop/restart. Native Switch does not need the
 legacy Band/OpenCode services or a Featherless API key.
 
+## Use the prepared project now
+
+`~/factoryops-main` is the only source checkout. Frozen installed tools and the
+active inventory fixture are under `~/.local/share/factoryops`. Audit data and
+verified recovery archives remain in `~/factoryops-evidence`.
+
+1. Launch Console with the command below; keep it open.
+2. Open [the private FactoryOps Discord channel](https://discord.com/channels/1552169208043937864/1568776663964323952).
+   Your account is linked and four agents already exist. **Do not run the template again.**
+3. Review Foreman's request `A1` for `pwd && cat AGENTS.md` in the disposable
+   workspace. Click **1. Approve**, or reply `A1 1`, for that exact command. Keep bypass
+   permissions off. This is a Discord approval: the managed-agent Console screen
+   does not expose that room's tool-permission card. If the request is closed,
+   address Foreman and review its replacement; do not enable approval bypass.
+4. Send the four readiness checks below, then the inventory issue. Watch the
+   actual failing test, fix and both reviewers' same-candidate results.
+5. Personally approve or reject the identified candidate after reviewing those
+   results. Tool permission and final candidate approval are separate decisions.
+
+Console lists all four agents as Running. Fresh replies, the completed issue
+workflow and a reviewed recording remain required. The event deadline was
+November 7 at 13:29 EST and has passed; late acceptance needs organizer confirmation.
+
 ## Discord connection setup and recovery
 
 The earlier **“Bridge is not running”** error was caused by
@@ -76,17 +99,12 @@ changes, Discord integration, human approval, or production readiness.
 
 The local Switch server answered `GET /health` with HTTP **200** at
 `http://localhost:40735` on November 7, 2026. Its database and server are running.
-The Discord bot has now connected successfully after the required intents were
-repaired. **FactoryOps is saved under Templates**, but its four agents and room
-have not been created: Console requires your Discord account to be linked first.
-Select **Link account**, search your Discord username or server display name,
-and choose **This is me**. Then use the prepared paths below and select
-**Create all** once. This is the next operator step.
-
-Earlier built-in-agent replies are visible in Console, following a historical
-usage-limit failure. A fresh four-seat Discord response and the complete inventory
-workflow still need verification. Server health alone does not prove agent readiness.
-
+The Discord bot is connected, `@rafal_init` is linked, and all four native
+FactoryOps agents plus the private `factoryops-demo-engineering` channel exist.
+Foreman's initial read command requires normal permission approval. Console was
+restarted after setup; use the current displayed request if `A1` has expired. Earlier
+built-in buddy direct-chat attempts had failed tool calls; they do not establish
+that the four-agent workflow passed.
 ```bash
 cd "$HOME/factoryops-main"
 export PATH="$HOME/.local/bin:$PATH"
@@ -106,16 +124,16 @@ with `completion_mode=supervised`, then send the private Discord channel:
 
 ```text
 !agents-status
-@factoryops-foreman Reply with FACTORYOPS_FOREMAN_READY.
-@factoryops-smith Reply with FACTORYOPS_SMITH_READY.
-@factoryops-inspector Reply with FACTORYOPS_INSPECTOR_READY.
-@factoryops-stresser Reply with FACTORYOPS_STRESSER_READY.
+@factoryops-demo-foreman Reply with FACTORYOPS_FOREMAN_READY.
+@factoryops-demo-smith Reply with FACTORYOPS_SMITH_READY.
+@factoryops-demo-inspector Reply with FACTORYOPS_INSPECTOR_READY.
+@factoryops-demo-stresser Reply with FACTORYOPS_STRESSER_READY.
 ```
 
 Require actual replies from all four seats within 120 seconds. Then send:
 
 ```text
-@factoryops-foreman Restock accepts -1 and lowers inventory. Please investigate and fix it.
+@factoryops-demo-foreman Restock accepts -1 and lowers inventory. Please investigate and fix it.
 ```
 
 Watch the failing test, focused fix, exact commit, two independent checks and
@@ -124,13 +142,14 @@ the expected evidence and failure cases. Nothing is submitted automatically.
 
 ## Import all four FactoryOps agents
 
-The current tested runtime and a fresh disposable fixture are already prepared.
-**Skip `init-demo` for this existing fixture**; that command deliberately refuses
-an existing destination.
+The current team is already provisioned. This section is for another machine
+or a separately named new team. Skip `init-demo` for the existing fixture; it
+refuses existing destinations. The runtime is an installed wheel, not a source
+clone; its `.venv/bin/python` runs the FactoryOps module.
 
 1. On this prepared computer, select **Templates → FactoryOps → Use template**.
    For a new installation, select **Import template** first.
-2. For a new import, load `/home/victim/factoryops-demo-runtime-next/switch/factoryops.template.yaml`.
+2. For a new import, load `/home/victim/factoryops-main/switch/factoryops.template.yaml`.
    Save it as **FactoryOps**. The prepared computer already has the corrected
    template saved; do not import a duplicate. If using the Gateway instead, select **Resources →
    Templates → Upload template → Load from file**.
@@ -140,17 +159,17 @@ an existing destination.
 
 | Field | Value |
 |---|---|
-| `team` | `factoryops` |
+| `team` | `factoryops-demo` |
 | `completion_mode` | `supervised` |
 | `bridge` | Your running Discord connection, currently named `switch-buddy` |
 | `provider` | `codex` |
 | `location` | This computer |
-| `tooling_directory` | `/home/victim/factoryops-demo-runtime-next` |
-| `demo_root` | `/home/victim/factoryops-inventory-live-20261107` |
-| `foreman_directory` | `/home/victim/factoryops-inventory-live-20261107/foreman` |
-| `builder_directory` | `/home/victim/factoryops-inventory-live-20261107/builder` |
-| `inspector_directory` | `/home/victim/factoryops-inventory-live-20261107/inspector` |
-| `stresser_directory` | `/home/victim/factoryops-inventory-live-20261107/stresser` |
+| `tooling_directory` | `/home/victim/.local/share/factoryops/demo-runtime` |
+| `demo_root` | `/home/victim/.local/share/factoryops/inventory-demo` |
+| `foreman_directory` | `/home/victim/.local/share/factoryops/inventory-demo/foreman` |
+| `builder_directory` | `/home/victim/.local/share/factoryops/inventory-demo/builder` |
+| `inspector_directory` | `/home/victim/.local/share/factoryops/inventory-demo/inspector` |
+| `stresser_directory` | `/home/victim/.local/share/factoryops/inventory-demo/stresser` |
 
 4. Confirm the preview contains four agents and one engineering room. Leave
    automatic approval and bypass disabled, then run the template once.

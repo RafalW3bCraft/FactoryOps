@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -144,3 +145,52 @@ def test_native_directory_inputs_are_only_agent_workspace_bindings() -> None:
     tooling = template["params"]["tooling_directory"]
     assert tooling["type"] == "string"
     assert tooling["pattern"] == "/.*"
+
+
+def test_native_demo_room_is_private_on_discord_and_switch() -> None:
+    """The dedicated fixture demonstration must not inherit public defaults."""
+    path = Path(__file__).resolve().parents[1] / "switch/factoryops.template.yaml"
+    room = yaml.safe_load(path.read_text())["room"]
+    assert room["channel_type"] == "channel_private"
+    assert room["read_visibility"] == "private"
+    assert room["write_visibility"] == "private"
+    assert room["users"] == ["{$creator}"]
+
+
+def test_native_foreman_uses_the_frozen_installed_runtime() -> None:
+    """Live preparation must not import mutable development checkout code."""
+    path = Path(__file__).resolve().parents[1] / "switch/factoryops.template.yaml"
+    template = yaml.safe_load(path.read_text())
+    instructions = " ".join(template["agents"][0]["instructions"].split())
+    assert '"{tooling_directory}/.venv/bin/python" -m factory.factoryops prepare-verifier' in instructions
+    assert "uv run --project" not in instructions
+
+
+def test_module_cli_help_is_not_a_silent_noop() -> None:
+    run = subprocess.run(
+        [sys.executable, "-B", "-m", "factory.factoryops", "--help"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert run.returncode == 0
+    assert "init-demo" in run.stdout
+    assert "prepare-verifier" in run.stdout
+
+
+def test_module_cli_initializes_a_real_disposable_fixture(tmp_path: Path) -> None:
+    root = tmp_path / "installed-module-demo"
+    run = subprocess.run(
+        [sys.executable, "-B", "-m", "factory.factoryops", "init-demo", "--root", str(root)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert run.returncode == 0, run.stderr
+    assert (root / factoryops.METADATA_FILE).is_file()
+    paths = factoryops.load_demo(root)
+    assert paths.completion_mode == "supervised"
+    assert (
+        subprocess.check_output(["git", "-C", str(paths.builder), "rev-parse", "HEAD"], text=True).strip()
+        == paths.baseline_sha
+    )
